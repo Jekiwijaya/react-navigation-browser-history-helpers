@@ -10,10 +10,9 @@ const reducer = (Navigator) => (history, currState, action) => {
       const { path, params = {} } = Navigator.router.getPathAndParamsForState(state);
       if (!action.dontPushHistory) {
         history.push({
-          pathname: `/${path}`,
+          pathname: `${uriPrefix}${path}`,
         });
       }
-      console.log('return state', state);
       return state;
     }
     case BACK: {
