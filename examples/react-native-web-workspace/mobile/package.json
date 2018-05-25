@@ -1,0 +1,24 @@
+{
+  "name": "mobile",
+  "version": "0.0.1",
+  "private": true,
+  "author": "Alejandro Garcia <agrcrobles@gmail.com>",
+  "scripts": {
+    "haul": "haul"
+  },
+  "dependencies": {
+    "components": "0.0.1",
+    "react": "16.0.0",
+    "react-native": "0.51.0",
+    "react-native-vector-icons": "^4.4.3",
+    "react-navigation": "2.0",
+    "react-navigation-browser-history-helpers": "^1.0.0",
+    "react-navigation-playground": "0.0.1",
+    "utils": "0.0.1"
+  },
+  "devDependencies": {
+    "babel-preset-react-native": "4.0.0",
+    "haul": "^1.0.0-beta.12",
+    "react-test-renderer": "16.0.0"
+  }
+}
