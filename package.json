@@ -19,5 +19,24 @@
   },
   "peerDependencies": {
     "react-navigation": "2.x.x"
-  }
+  },
+  "description": "Helpers to make react-navigation have browser history.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jekiwijaya/react-navigation-browser-history-helpers.git"
+  },
+  "keywords": [
+    "React",
+    "Native",
+    "React",
+    "React",
+    "Navigation",
+    "Browser",
+    "History"
+  ],
+  "author": "Jacky Wijaya (jekiwijaya@hotmail.com)",
+  "bugs": {
+    "url": "https://github.com/Jekiwijaya/react-navigation-browser-history-helpers/issues"
+  },
+  "homepage": "https://github.com/Jekiwijaya/react-navigation-browser-history-helpers#readme"
 }
