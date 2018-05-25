@@ -2,7 +2,7 @@ import isEmpty from 'lodash/isEmpty';
 import { NavigationActions } from 'react-navigation';
 const { BACK, INIT, NAVIGATE, SET_PARAMS } = NavigationActions;
 
-const reducer = (Navigator) => (history, currState, action, uriPrefix) => {
+const reducer = (Navigator) => (history, currState, action, basePath) => {
   if (isEmpty(history)) return null;
   switch(action.type) {
     case NAVIGATE: {
@@ -10,7 +10,7 @@ const reducer = (Navigator) => (history, currState, action, uriPrefix) => {
       const { path, params = {} } = Navigator.router.getPathAndParamsForState(state);
       if (!action.dontPushHistory) {
         history.push({
-          pathname: `${uriPrefix}${path}`,
+          pathname: `${basePath}${path}`,
         });
       }
       return state;
