@@ -24,7 +24,6 @@ export default function withBroserHistory(Navigator) {
       this.setNavFromPath(initialPath);
 
       this.history.listen((location, action) => {
-        console.log(location, action);
         if (action === "POP") {
           const { pathname, search } = location;
           const path = (pathname + search).slice(1);
@@ -46,7 +45,8 @@ export default function withBroserHistory(Navigator) {
 
     dispatch = (action) => {
       const oldState = this.state.nav;
-      const newState = this.reducer(this.history, oldState, action);
+      const { uriPrefix } = this.props;
+      const newState = this.reducer(this.history, oldState, action, uriPrefix);
 
       this.triggerAllSubscribers(
         this.subscribers,
