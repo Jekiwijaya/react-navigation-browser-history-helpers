@@ -1,0 +1,1 @@
+Object.defineProperty(exports,"__esModule",{value:true});var _withBrowserHistory=require('./withBrowserHistory');Object.defineProperty(exports,'withBrowserHistory',{enumerable:true,get:function get(){return _interopRequireDefault(_withBrowserHistory).default;}});function _interopRequireDefault(obj){return obj&&obj.__esModule?obj:{default:obj};}

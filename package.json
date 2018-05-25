@@ -1,0 +1,23 @@
+{
+  "name": "react-navigation-browser-history-helpers",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "npm run build:clean && npm run build:dist",
+    "build:clean": "rimraf dist/*",
+    "build:dist": "babel es6 --out-dir dist --copy-files --ignore *.test.js,__tests__"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "history": "^4.7.2",
+    "lodash": "^4.17.10"
+  },
+  "devDependencies": {
+    "babel-preset-react-native": "^4.0.0",
+    "react-navigation": "^2.0.2",
+    "rimraf": "^2.6.2"
+  },
+  "peerDependencies": {
+    "react-navigation": "2.x.x"
+  }
+}
