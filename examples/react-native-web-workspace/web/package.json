@@ -11,9 +11,9 @@
     "web": "webpack-dev-server --config webpack.dev.config.js",
     "start": "node server.js",
     "build": "webpack --config webpack.prod.config.js",
-    "remove:root:build": "rm ../../../index.html && rm ../../../bundle.js",
-    "move:root:build": "mv build/index.html ../../../index.html && mv build/bundle.js ../../../bundle.js",
-    "release": "yarn build && git checkout gh-pages && yarn remove:root:build && move:root:build && git add -A && git commit -m \"Web deploy\" && git push origin gh-pages && git checkout -"
+    "remove:root:build": "rm ../../../bundle.js",
+    "move:root:build": "mv build/bundle.js ../../../bundle.js",
+    "release": "yarn build && git checkout gh-pages && yarn remove:root:build && yarn move:root:build && git add -A && git commit -m \"Web deploy\" && git push origin gh-pages && git checkout -"
   },
   "dependencies": {
     "babel-plugin-react-native-web": "^0.7.2",
