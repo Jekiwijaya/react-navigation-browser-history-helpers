@@ -10,10 +10,6 @@ export default function withBroserHistory(Navigator) {
       nav: null,
     }
 
-    static defaultProps = {
-      basePath: '',
-    }
-
     constructor(props) {
       super(props);
       this.subscribers = [];
@@ -49,8 +45,8 @@ export default function withBroserHistory(Navigator) {
 
     dispatch = (action) => {
       const oldState = this.state.nav;
-      const { basePath, uriPrefix } = this.props;
-      const newState = this.reducer(this.history, oldState, action, basePath);
+      const { uriPrefix } = this.props;
+      const newState = this.reducer(this.history, oldState, action);
 
       this.triggerAllSubscribers(
         this.subscribers,
