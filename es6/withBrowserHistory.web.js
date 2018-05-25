@@ -38,7 +38,8 @@ export default function withBroserHistory(Navigator) {
       this.history.listen((location, action) => {
         if (action === "POP") {
           const { pathname, search } = location;
-          const path = this.cleanPathWithBaseUrl((pathname + search).slice(1));
+          const path = this.cleanPathWithBaseUrl(pathname + search);
+          console.log(location, path);
           const navigationAction = Navigator.router.getActionForPathAndParams(path);
           this.dispatch({
             ...navigationAction,
