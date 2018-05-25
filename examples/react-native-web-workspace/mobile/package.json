@@ -12,7 +12,7 @@
     "react-native": "0.51.0",
     "react-native-vector-icons": "^4.4.3",
     "react-navigation": "2.0",
-    "react-navigation-browser-history-helpers": "^1.0.0",
+    "react-navigation-browser-history-helpers": "file:../../../",
     "react-navigation-playground": "0.0.1",
     "utils": "0.0.1"
   },

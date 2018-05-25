@@ -23,7 +23,7 @@
     "react-native-vector-icons": "^4.1.1",
     "react-native-web": "^0.5.3",
     "react-navigation": "2.0.2",
-    "react-navigation-browser-history-helpers": "^1.0.0",
+    "react-navigation-browser-history-helpers": "file:../../../",
     "react-navigation-playground": "0.0.1",
     "regenerator-runtime": "^0.11.1",
     "utils": "0.0.1"
