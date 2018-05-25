@@ -97,8 +97,7 @@ const ExampleRoutes = {
   },
 };
 
-const MainScreen = ({ navigation }) => {
-  return (
+const MainScreen = ({ navigation }) => (
     <ScrollView>
       <Banner />
       {Object.keys(ExampleRoutes).map((routeName: string) => (
@@ -121,7 +120,6 @@ const MainScreen = ({ navigation }) => {
       ))}
     </ScrollView>
   );
-}
 
 const AppNavigator = StackNavigator(
   {
@@ -145,7 +143,8 @@ const AppNavigator = StackNavigator(
 
 const HistoryNavigator = withBrowserHistory(AppNavigator);
 
-export default () => <HistoryNavigator uriPrefix="http://localhost:3000/" />;
+const HOST = __DEV__ ? 'http://localhost:3000/' : 'https://jekiwijaya.github.io/react-navigation-browser-history-helpers/';
+export default () => <HistoryNavigator uriPrefix={HOST} />;
 
 const styles = StyleSheet.create({
   item: {
