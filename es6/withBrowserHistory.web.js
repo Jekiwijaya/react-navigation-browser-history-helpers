@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import createReducer from './reducer';
 import {createBrowserHistory as createHistory} from 'history';
+import { NavigationActions } from 'react-navigation';
 
 export default function withBroserHistory(Navigator) {
 
   const Wrapper = class extends Component {
 
     state = {
-      nav: null,
+      nav: Navigator.router.getStateForAction(NavigationActions.init()),
     }
 
     static defaultProps = {
