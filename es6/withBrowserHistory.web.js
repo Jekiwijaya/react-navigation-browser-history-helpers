@@ -1,17 +1,18 @@
 import React, { Component } from 'react';
 import createReducer from './reducer';
 import {createBrowserHistory as createHistory} from 'history';
+import { NavigationActions } from 'react-navigation';
 
 export default function withBroserHistory(Navigator) {
 
   const Wrapper = class extends Component {
 
     state = {
-      nav: null,
+      nav: Navigator.router.getStateForAction(NavigationActions.init()),
     }
 
     static defaultProps = {
-      basePath: '',
+      basePath: '/',
     }
 
     constructor(props) {
@@ -21,16 +22,25 @@ export default function withBroserHistory(Navigator) {
       this.reducer = createReducer(Navigator);
     }
 
+    cleanPathWithBaseUrl(path) {
+      const { basePath } = this.props;
+      if (path.startsWith(basePath)) {
+        return path.slice(basePath.length);
+      }
+      return path;
+    }
+
     componentDidMount() {
       const { uriPrefix } = this.props;
-      const initialPath = window.location.href.replace(uriPrefix, '');
+      const initialPath = this.cleanPathWithBaseUrl(window.location.href.replace(uriPrefix, ''));
       this.history = createHistory();
       this.setNavFromPath(initialPath);
 
       this.history.listen((location, action) => {
         if (action === "POP") {
           const { pathname, search } = location;
-          const path = (pathname + search).slice(1);
+          const path = this.cleanPathWithBaseUrl(pathname + search);
+          console.log(location, path);
           const navigationAction = Navigator.router.getActionForPathAndParams(path);
           this.dispatch({
             ...navigationAction,
@@ -49,7 +59,7 @@ export default function withBroserHistory(Navigator) {
 
     dispatch = (action) => {
       const oldState = this.state.nav;
-      const { basePath, uriPrefix } = this.props;
+      const { uriPrefix, basePath } = this.props;
       const newState = this.reducer(this.history, oldState, action, basePath);
 
       this.triggerAllSubscribers(
