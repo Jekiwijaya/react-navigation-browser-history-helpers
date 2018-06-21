@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "history": "^4.7.2",
+    "hoist-non-react-statics": "^2.5.5",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
