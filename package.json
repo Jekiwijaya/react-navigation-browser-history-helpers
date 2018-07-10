@@ -19,7 +19,7 @@
     "rimraf": "^2.6.2"
   },
   "peerDependencies": {
-    "react-navigation": "2.x.x"
+    "react-navigation": ">=2.3.0"
   },
   "description": "Helpers to make react-navigation have browser history.",
   "repository": {
