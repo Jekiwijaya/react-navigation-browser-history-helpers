@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
 import createReducer from './reducer';
 import {createBrowserHistory as createHistory} from 'history';
-import { NavigationActions } from 'react-navigation';
+import { NavigationActions, getNavigation } from 'react-navigation';
+import hoistNonReactStatics from 'hoist-non-react-statics';
 
 export default function withBroserHistory(Navigator) {
-
   const Wrapper = class extends Component {
-
     state = {
       nav: Navigator.router.getStateForAction(NavigationActions.init()),
     }
@@ -14,6 +13,8 @@ export default function withBroserHistory(Navigator) {
     static defaultProps = {
       basePath: '/',
     }
+
+    currentNavProp = null;
 
     constructor(props) {
       super(props);
@@ -78,9 +79,16 @@ export default function withBroserHistory(Navigator) {
     }
 
     render() {
-      const navigation = { dispatch: this.dispatch, state: this.state.nav, addListener: this.addListener };
+      this.currentNavProp = getNavigation(
+        Navigator.router,
+        this.state.nav,
+        this.dispatch,
+        this.subscribers,
+        () => {},
+        () => this.currentNavProp,
+      );
       if (!this.state.nav) return null;
-      return (<Navigator  navigation={navigation} />);
+      return (<Navigator navigation={this.currentNavProp} />);
     }
 
     addListener = (eventName, handler) => {
@@ -102,5 +110,5 @@ export default function withBroserHistory(Navigator) {
       subscribers.forEach(subscriber => subscriber(payload));
     }
   }
-  return Wrapper;
+  return hoistNonReactStatics(Wrapper, Navigator);
 }

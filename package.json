@@ -1,6 +1,6 @@
 {
   "name": "react-navigation-browser-history-helpers",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "scripts": {
     "build": "npm run build:clean && npm run build:dist",
@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "history": "^4.7.2",
+    "hoist-non-react-statics": "^2.5.5",
     "lodash": "^4.17.10"
   },
   "devDependencies": {
@@ -18,7 +19,7 @@
     "rimraf": "^2.6.2"
   },
   "peerDependencies": {
-    "react-navigation": "2.x.x"
+    "react-navigation": ">=2.3.0"
   },
   "description": "Helpers to make react-navigation have browser history.",
   "repository": {
