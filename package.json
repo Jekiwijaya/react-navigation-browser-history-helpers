@@ -9,6 +9,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "flat": "^4.1.0",
     "history": "^4.7.2",
     "hoist-non-react-statics": "^2.5.5",
     "lodash": "^4.17.10"

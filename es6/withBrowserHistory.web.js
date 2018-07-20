@@ -5,13 +5,10 @@ import { NavigationActions } from 'react-navigation';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 export default function withBroserHistory(Navigator) {
+
   const Wrapper = class extends Component {
     state = {
       nav: Navigator.router.getStateForAction(NavigationActions.init()),
-    }
-
-    static defaultProps = {
-      basePath: '/',
     }
 
     constructor(props) {
@@ -22,7 +19,7 @@ export default function withBroserHistory(Navigator) {
     }
 
     cleanPathWithBaseUrl(path) {
-      const { basePath } = this.props;
+      const { basePath = '/' }  = this.props;
       if (path.startsWith(basePath)) {
         return path.slice(basePath.length);
       }
@@ -36,10 +33,9 @@ export default function withBroserHistory(Navigator) {
       this.setNavFromPath(initialPath);
 
       this.history.listen((location, action) => {
-        if (action === "POP") {
+        if (action === "POP" ) {
           const { pathname, search } = location;
           const path = this.cleanPathWithBaseUrl(pathname + search);
-          console.log(location, path);
           const navigationAction = Navigator.router.getActionForPathAndParams(path);
           this.dispatch({
             ...navigationAction,
@@ -57,8 +53,12 @@ export default function withBroserHistory(Navigator) {
     }
 
     dispatch = (action) => {
+      if (typeof action === 'function') {
+        if (this.props.getState) return action(this.dispatch, this.props.getState);
+        return action(this.dispatch, () => this.state.nav);
+      }
       const oldState = this.state.nav;
-      const { uriPrefix, basePath } = this.props;
+      const { basePath = '/' } = this.props;
       const newState = this.reducer(this.history, oldState, action, basePath);
 
       this.triggerAllSubscribers(
@@ -79,7 +79,7 @@ export default function withBroserHistory(Navigator) {
     render() {
       const navigation = { dispatch: this.dispatch, state: this.state.nav, addListener: this.addListener };
       if (!this.state.nav) return null;
-      return (<Navigator  navigation={navigation} />);
+      return (<Navigator navigation={navigation}/>);
     }
 
     addListener = (eventName, handler) => {
