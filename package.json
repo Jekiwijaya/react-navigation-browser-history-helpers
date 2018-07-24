@@ -12,11 +12,12 @@
     "flat": "^4.1.0",
     "history": "^4.7.2",
     "hoist-non-react-statics": "^2.5.5",
-    "lodash": "^4.17.10"
+    "lodash": "^4.17.10",
+    "query-string": "^6.1.0"
   },
   "devDependencies": {
     "babel-preset-react-native": "^4.0.0",
-    "react-navigation": "^2.0.2",
+    "react-navigation": "^2.6.0",
     "rimraf": "^2.6.2"
   },
   "peerDependencies": {

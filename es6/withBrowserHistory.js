@@ -1,3 +1,5 @@
 export default function stubFunc(W){
-  return W;
+  return ({basePath, ...rest}) => (
+    <W {...rest} />
+  );
 };
