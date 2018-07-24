@@ -5,17 +5,21 @@ import { NavigationActions, getNavigation } from 'react-navigation';
 import hoistNonReactStatics from 'hoist-non-react-statics';
 
 export default function withBroserHistory(Navigator) {
+
   const Wrapper = class extends Component {
     state = {
       nav: Navigator.router.getStateForAction(NavigationActions.init()),
     }
 
+<<<<<<< HEAD
     static defaultProps = {
       basePath: '/',
     }
 
     currentNavProp = null;
 
+=======
+>>>>>>> 7481064c0d14c2a9d72b7e6cea69c9f35cad0bb5
     constructor(props) {
       super(props);
       this.subscribers = [];
@@ -24,7 +28,7 @@ export default function withBroserHistory(Navigator) {
     }
 
     cleanPathWithBaseUrl(path) {
-      const { basePath } = this.props;
+      const { basePath = '/' }  = this.props;
       if (path.startsWith(basePath)) {
         return path.slice(basePath.length);
       }
@@ -38,10 +42,9 @@ export default function withBroserHistory(Navigator) {
       this.setNavFromPath(initialPath);
 
       this.history.listen((location, action) => {
-        if (action === "POP") {
+        if (action === "POP" ) {
           const { pathname, search } = location;
           const path = this.cleanPathWithBaseUrl(pathname + search);
-          console.log(location, path);
           const navigationAction = Navigator.router.getActionForPathAndParams(path);
           this.dispatch({
             ...navigationAction,
@@ -59,8 +62,12 @@ export default function withBroserHistory(Navigator) {
     }
 
     dispatch = (action) => {
+      if (typeof action === 'function') {
+        if (this.props.getState) return action(this.dispatch, this.props.getState);
+        return action(this.dispatch, () => this.state.nav);
+      }
       const oldState = this.state.nav;
-      const { uriPrefix, basePath } = this.props;
+      const { basePath = '/' } = this.props;
       const newState = this.reducer(this.history, oldState, action, basePath);
 
       this.triggerAllSubscribers(
