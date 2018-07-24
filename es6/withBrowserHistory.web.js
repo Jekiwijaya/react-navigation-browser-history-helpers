@@ -2,29 +2,25 @@ import React, { Component } from 'react';
 import createReducer from './reducer';
 import {createBrowserHistory as createHistory} from 'history';
 import { NavigationActions, getNavigation } from 'react-navigation';
-import hoistNonReactStatics from 'hoist-non-react-statics';
+import { queryStringToObject } from './utils/queryString';
 
 export default function withBroserHistory(Navigator) {
+
   const Wrapper = class extends Component {
     state = {
       nav: Navigator.router.getStateForAction(NavigationActions.init()),
     }
 
-    static defaultProps = {
-      basePath: '/',
-    }
-
     currentNavProp = null;
-
     constructor(props) {
       super(props);
-      this.subscribers = [];
+      this.subscribers = new Set();
       this.history = null;
       this.reducer = createReducer(Navigator);
     }
 
     cleanPathWithBaseUrl(path) {
-      const { basePath } = this.props;
+      const { basePath = '/' } = this.props;
       if (path.startsWith(basePath)) {
         return path.slice(basePath.length);
       }
@@ -38,10 +34,9 @@ export default function withBroserHistory(Navigator) {
       this.setNavFromPath(initialPath);
 
       this.history.listen((location, action) => {
-        if (action === "POP") {
+        if (action === "POP" ) {
           const { pathname, search } = location;
           const path = this.cleanPathWithBaseUrl(pathname + search);
-          console.log(location, path);
           const navigationAction = Navigator.router.getActionForPathAndParams(path);
           this.dispatch({
             ...navigationAction,
@@ -52,15 +47,22 @@ export default function withBroserHistory(Navigator) {
     }
 
     setNavFromPath = (path) => {
-      const action = Navigator.router.getActionForPathAndParams(path);
+      const pathWithoutQuery = path.indexOf('?') !== -1 ? path.slice(0, path.indexOf('?')) : path;
+      const qs = path.indexOf('?') !== -1 ? path.slice(path.indexOf('?') + 1) : '';
+      const params = queryStringToObject(qs);
+      const action = Navigator.router.getActionForPathAndParams(pathWithoutQuery, params) || NavigationActions.init();
       this.setState({
         nav: Navigator.router.getStateForAction(action)
       });
     }
 
     dispatch = (action) => {
+      if (typeof action === 'function') {
+        if (this.props.getState) return action(this.dispatch, this.props.getState);
+        return action(this.dispatch, () => this.state.nav);
+      }
       const oldState = this.state.nav;
-      const { uriPrefix, basePath } = this.props;
+      const { basePath = '/' } = this.props;
       const newState = this.reducer(this.history, oldState, action, basePath);
 
       this.triggerAllSubscribers(
@@ -95,13 +97,10 @@ export default function withBroserHistory(Navigator) {
       if (eventName !== 'action') {
         return { remove: () => {} };
       }
-      this.subscribers.push(handler);
+      this.subscribers.add(handler);
       return {
         remove: () => {
-          var index = this.subscribers.indexOf(handler);
-          if (index > -1) {
-            this.subscribers.splice(index, 1);
-          }
+          this.subscribers.delete(handler);
         },
       };
     }
@@ -110,5 +109,6 @@ export default function withBroserHistory(Navigator) {
       subscribers.forEach(subscriber => subscriber(payload));
     }
   }
-  return hoistNonReactStatics(Wrapper, Navigator);
+  Wrapper.router = Navigator.router;
+  return Wrapper;
 }

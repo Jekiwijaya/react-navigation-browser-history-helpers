@@ -1,16 +1,31 @@
 import isEmpty from 'lodash/isEmpty';
 import { NavigationActions } from 'react-navigation';
-const { BACK, INIT, NAVIGATE, SET_PARAMS } = NavigationActions;
+import { queryToString } from './utils/queryString';
 
-const reducer = (Navigator) => (history, currState, action, basePath) => {
+const { BACK, NAVIGATE } = NavigationActions;
+
+const generateQueryStringFromParams = params => {
+  const data = Object.keys(params).reduce((prev, cur) => {
+    prev.push(`${cur}=${params[cur]}`);
+    return prev;
+  }, []);
+  if (data) {
+    return '?' + data.join('&');
+  }
+  return '';
+};
+
+const reducer = Navigator => (history, currState, action, basePath = '/') => {
   if (isEmpty(history)) return null;
-  switch(action.type) {
+  switch (action.type) {
     case NAVIGATE: {
-      const state = Navigator.router.getStateForAction(action, currState) || Navigator.router.getStateForAction(action)
+      const state = Navigator.router.getStateForAction(action, currState) || Navigator.router.getStateForAction(action);
       const { path, params = {} } = Navigator.router.getPathAndParamsForState(state);
+      const qs = queryToString(params);
       if (!action.dontPushHistory) {
         history.push({
           pathname: `${basePath}${path}`,
+          search: qs,
         });
       }
       return state;
@@ -19,8 +34,10 @@ const reducer = (Navigator) => (history, currState, action, basePath) => {
       history.goBack();
       break;
     }
+    default:
+      return Navigator.router.getStateForAction(action, currState) || Navigator.router.getStateForAction(action);
   }
   return currState;
-}
+};
 
 export default reducer;
