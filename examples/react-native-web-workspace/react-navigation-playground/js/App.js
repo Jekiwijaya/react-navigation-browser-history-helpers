@@ -11,7 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import { createStackNavigator } from 'react-navigation';
 
 import Banner from './Banner';
 import CustomTabs from './CustomTabs';
@@ -121,12 +121,12 @@ const MainScreen = ({ navigation }) => (
     </ScrollView>
   );
 
-const AppNavigator = StackNavigator(
+const AppNavigator = createStackNavigator(
   {
     ...ExampleRoutes,
     Index: {
       screen: MainScreen,
-      path: '/',
+      path: '',
     },
   },
   {
@@ -141,12 +141,7 @@ const AppNavigator = StackNavigator(
   }
 );
 
-const HistoryNavigator = withBrowserHistory(AppNavigator);
-
-const HOST = __DEV__ ? 'http://localhost:3000' : 'https://jekiwijaya.github.io';
-const BASE_PATH = __DEV__ ? '/' : '/react-navigation-browser-history-helpers/';
-
-export default () => <HistoryNavigator uriPrefix={HOST} basePath={BASE_PATH} />;
+export default withBrowserHistory(AppNavigator);
 
 const styles = StyleSheet.create({
   item: {

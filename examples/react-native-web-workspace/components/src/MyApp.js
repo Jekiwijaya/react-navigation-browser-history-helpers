@@ -7,7 +7,7 @@ import { StyleSheet, Text, View, Button } from "react-native";
 
 import utils from "utils";
 
-import { TabNavigator } from "react-navigation";
+import { createBottomTabNavigator } from "react-navigation";
 
 class SetupScreen extends PureComponent {
 	static navigationOptions = {
@@ -40,7 +40,7 @@ class MyApp extends PureComponent {
 	}
 }
 
-export default TabNavigator({
+export default createBottomTabNavigator({
 	MyApp: {
 		screen: MyApp,
 		path: "my-app",

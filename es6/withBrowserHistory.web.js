@@ -108,14 +108,18 @@ export default function withBrowserHistory(Navigator) {
     render() {
       const {
         forwardedRef,
+        uriPrefix,
+        basePath,
         onNavigationStateChange,
         ...restProps
       } = this.props;
 
+      console.log('restProps', restProps)
+
       return (
         <Navigator
           ref={ref => {
-            forwardedRef(ref);
+            forwardedRef && forwardedRef(ref);
             NavigationService.setTopLevelNavigator(ref);
           }}
           onNavigationStateChange={this.handleNavigationStateChange}
