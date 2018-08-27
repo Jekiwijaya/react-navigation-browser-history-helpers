@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { NavigationActions, StackActions } from 'react-navigation';
 import createHistory from 'history/createBrowserHistory';
 import NavigationService from './NavigationService';
@@ -13,11 +14,21 @@ const { PUSH, POP } = StackActions;
 
 export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
+    static propTypes = {
+      basePath: PropTypes.string,
+      uriPrefix: PropTypes.string
+    };
+
+    static defaultProps = {
+      basePath: '/',
+      uriPrefix: ''
+    };
+
     constructor(props) {
       super(props);
 
       this.history = createHistory();
-      this.pathAndParams = getPathAndParamsFromLocation(this.history.location);
+      this.pathAndParams = getPathAndParamsFromLocation(this.history.location, this.props.basePath, this.props.uriPrefix);
 
       const action =
         Navigator.router.getActionForPathAndParams(
@@ -29,7 +40,7 @@ export default function withBrowserHistory(Navigator) {
 
     componentDidMount() {
       this.unlistener = this.history.listen(location => {
-        const pathAndParams = getPathAndParamsFromLocation(location);
+        const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
 
         if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
         this.pathAndParams = pathAndParams;
@@ -47,6 +58,7 @@ export default function withBrowserHistory(Navigator) {
     }
 
     handleNavigationStateChange = (...args) => {
+      const { basePath } = this.props;
       const [, nextState, action] = args;
       const pathAndParams = Navigator.router.getPathAndParamsForState(
         nextState
@@ -61,7 +73,7 @@ export default function withBrowserHistory(Navigator) {
         case NAVIGATE:
         case PUSH: {
           this.history.push({
-            pathname: `/${pathAndParams.path}`,
+            pathname: `${basePath}${pathAndParams.path}`,
             search: paramsToString(pathAndParams.params),
           });
           break;
@@ -69,7 +81,7 @@ export default function withBrowserHistory(Navigator) {
 
         case SET_PARAMS: {
           this.history.replace({
-            pathname: `/${pathAndParams.path}`,
+            pathname: `${basePath}${pathAndParams.path}`,
             search: paramsToString(pathAndParams.params),
           });
           break;

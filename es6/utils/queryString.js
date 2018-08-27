@@ -1,7 +1,7 @@
 import qs from 'query-string';
 
-export function getPathAndParamsFromLocation(location) {
-  const path = location.pathname.substr(1);
+export function getPathAndParamsFromLocation(location, basePath = '/', uriPrefix = '') {
+  const path = location.pathname.replace(uriPrefix, '').substr(basePath.length);
   const params = qs.parse(location.search);
 
   return { path, params };
