@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { NavigationActions, StackActions } from 'react-navigation';
 import createHistory from 'history/createBrowserHistory';
-import NavigationService from './NavigationService';
+import NavigationService from './utils/NavigationService';
 import {
   getPathAndParamsFromLocation,
   matchPathAndParams,
