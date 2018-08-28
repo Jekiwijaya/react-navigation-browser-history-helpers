@@ -108,8 +108,6 @@ export default function withBrowserHistory(Navigator) {
     render() {
       const {
         forwardedRef,
-        uriPrefix,
-        basePath,
         onNavigationStateChange,
         ...restProps
       } = this.props;
