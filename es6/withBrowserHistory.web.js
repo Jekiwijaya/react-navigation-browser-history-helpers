@@ -114,8 +114,6 @@ export default function withBrowserHistory(Navigator) {
         ...restProps
       } = this.props;
 
-      console.log('restProps', restProps)
-
       return (
         <Navigator
           ref={ref => {
