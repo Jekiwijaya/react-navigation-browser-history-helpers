@@ -21,6 +21,7 @@ export default function withBrowserHistory(Navigator) {
     };
 
     static defaultProps = {
+      navigatorRef: null,
       basePath: '/',
       uriPrefix: ''
     };
