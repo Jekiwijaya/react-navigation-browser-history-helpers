@@ -15,6 +15,7 @@ const { PUSH, POP } = StackActions;
 export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
     static propTypes = {
+      navigatorRef: PropTypes.func,
       basePath: PropTypes.string,
       uriPrefix: PropTypes.string
     };
@@ -107,7 +108,7 @@ export default function withBrowserHistory(Navigator) {
 
     render() {
       const {
-        forwardedRef,
+        navigatorRef,
         onNavigationStateChange,
         ...restProps
       } = this.props;
@@ -115,7 +116,7 @@ export default function withBrowserHistory(Navigator) {
       return (
         <Navigator
           ref={ref => {
-            forwardedRef && forwardedRef(ref);
+            navigatorRef && navigatorRef(ref);
             NavigationService.setTopLevelNavigator(ref);
           }}
           onNavigationStateChange={this.handleNavigationStateChange}
@@ -125,9 +126,5 @@ export default function withBrowserHistory(Navigator) {
     }
   };
 
-  function forwardRef(props, ref) {
-    return <Wrapper {...props} forwardedRef={ref} />;
-  }
-
-  return React.forwardRef(forwardRef);
+  return Wrapper;
 }

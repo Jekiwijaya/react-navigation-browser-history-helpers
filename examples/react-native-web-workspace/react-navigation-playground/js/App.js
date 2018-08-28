@@ -11,7 +11,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 
 import Banner from './Banner';
 import CustomTabs from './CustomTabs';
@@ -121,7 +121,7 @@ const MainScreen = ({ navigation }) => (
     </ScrollView>
   );
 
-const AppNavigator = createStackNavigator(
+const AppNavigator = StackNavigator(
   {
     ...ExampleRoutes,
     Index: {
@@ -141,7 +141,8 @@ const AppNavigator = createStackNavigator(
   }
 );
 
-export default withBrowserHistory(AppNavigator);
+const HistoryNavigator = withBrowserHistory(AppNavigator);
+export default () => <HistoryNavigator />;
 
 const styles = StyleSheet.create({
   item: {

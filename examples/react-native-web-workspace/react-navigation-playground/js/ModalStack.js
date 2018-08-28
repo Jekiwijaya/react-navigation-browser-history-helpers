@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Button, ScrollView, Text } from 'react-native';
-import { createStackNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 import SampleText from './SampleText';
 
 const MyNavScreen = ({ navigation, banner }) => (
@@ -48,7 +48,7 @@ MyProfileScreen.navigationOptions = ({ navigation }) => ({
   title: `${navigation.state.params.name}'s Profile!`,
 });
 
-const ProfileNavigator = createStackNavigator(
+const ProfileNavigator = StackNavigator(
   {
     Home: {
       screen: MyHomeScreen,
@@ -77,7 +77,7 @@ MyHeaderTestScreen.navigationOptions = ({ navigation }) => {
   };
 };
 
-const ModalStack = createStackNavigator(
+const ModalStack = StackNavigator(
   {
     Home: {
       screen: MyHomeScreen,

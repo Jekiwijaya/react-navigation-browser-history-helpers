@@ -4,12 +4,12 @@
 
 import React from 'react';
 import { Button, Platform, ScrollView, StyleSheet } from 'react-native';
-import { TabNavigator, createDrawerNavigator } from 'react-navigation';
+import { TabNavigator, DrawerNavigator } from 'react-navigation';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SimpleTabs from './SimpleTabs';
 import StacksOverTabs from './StacksOverTabs';
 
-const TabsInDrawer = createDrawerNavigator({
+const TabsInDrawer = DrawerNavigator({
   SimpleTabs: {
     screen: SimpleTabs,
     path: '/tabs',

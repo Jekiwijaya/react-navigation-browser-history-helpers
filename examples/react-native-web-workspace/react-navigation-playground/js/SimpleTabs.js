@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Button, Platform, ScrollView, StyleSheet } from 'react-native';
-import { createBottomTabNavigator } from 'react-navigation';
+import { TabNavigator } from 'react-navigation';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import SampleText from './SampleText';
 
@@ -83,7 +83,7 @@ MySettingsScreen.navigationOptions = {
   ),
 };
 
-const SimpleTabs = createBottomTabNavigator(
+const SimpleTabs = TabNavigator(
   {
     Home: {
       screen: MyHomeScreen,

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import { Button, Platform, ScrollView, StyleSheet } from 'react-native';
-import { createDrawerNavigator } from 'react-navigation';
+import { DrawerNavigator } from 'react-navigation';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import SampleText from './SampleText';
 
@@ -43,7 +43,7 @@ DraftsScreen.navigationOptions = {
   ),
 };
 
-const DrawerExample = createDrawerNavigator(
+const DrawerExample = DrawerNavigator(
   {
     Inbox: {
       path: 'inbox',
