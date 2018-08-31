@@ -1,114 +1,112 @@
 import React, { Component } from 'react';
-import createReducer from './reducer';
-import {createBrowserHistory as createHistory} from 'history';
-import { NavigationActions, getNavigation } from 'react-navigation';
-import { queryStringToObject } from './utils/queryString';
+import PropTypes from 'prop-types';
+import { NavigationActions, StackActions } from 'react-navigation';
+import createHistory from 'history/createBrowserHistory';
+import NavigationService from './utils/NavigationService';
+import {
+  getPathAndParamsFromLocation,
+  matchPathAndParams,
+  paramsToString,
+} from './utils/queryString';
 
-export default function withBroserHistory(Navigator) {
+const { NAVIGATE, BACK, SET_PARAMS } = NavigationActions;
+const { PUSH, POP } = StackActions;
 
+export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
-    state = {
-      nav: Navigator.router.getStateForAction(NavigationActions.init()),
-    }
+    static propTypes = {
+      navigatorRef: PropTypes.func,
+      basePath: PropTypes.string,
+      uriPrefix: PropTypes.string
+    };
 
-    currentNavProp = null;
+    static defaultProps = {
+      navigatorRef: null,
+      basePath: '/',
+      uriPrefix: ''
+    };
+
     constructor(props) {
       super(props);
-      this.subscribers = new Set();
-      this.history = null;
-      this.reducer = createReducer(Navigator);
-    }
 
-    cleanPathWithBaseUrl(path) {
-      const { basePath = '/' } = this.props;
-      if (path.startsWith(basePath)) {
-        return path.slice(basePath.length);
-      }
-      return path;
+      this.history = createHistory();
+      this.pathAndParams = getPathAndParamsFromLocation(this.history.location, this.props.basePath, this.props.uriPrefix);
+
+      const action =
+        Navigator.router.getActionForPathAndParams(
+          this.pathAndParams.path,
+          this.pathAndParams.params
+        ) || NavigationActions.init();
+      NavigationService.dispatch(action);
     }
 
     componentDidMount() {
-      const { uriPrefix } = this.props;
-      const initialPath = this.cleanPathWithBaseUrl(window.location.href.replace(uriPrefix, ''));
-      this.history = createHistory();
-      this.setNavFromPath(initialPath);
+      this.unlistener = this.history.listen(location => {
+        const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
 
-      this.history.listen((location, action) => {
-        if (action === "POP" ) {
-          const { pathname, search } = location;
-          const path = this.cleanPathWithBaseUrl(pathname + search);
-          const navigationAction = Navigator.router.getActionForPathAndParams(path);
-          this.dispatch({
-            ...navigationAction,
-            dontPushHistory: true,
-          });
-        }
+        if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
+        this.pathAndParams = pathAndParams;
+
+        const action = Navigator.router.getActionForPathAndParams(
+          pathAndParams.path,
+          pathAndParams.params
+        );
+        NavigationService.dispatch({ ...action, ignoreHistory: true });
       });
     }
 
-    setNavFromPath = (path) => {
-      const pathWithoutQuery = path.indexOf('?') !== -1 ? path.slice(0, path.indexOf('?')) : path;
-      const qs = path.indexOf('?') !== -1 ? path.slice(path.indexOf('?') + 1) : '';
-      const params = queryStringToObject(qs);
-      const action = Navigator.router.getActionForPathAndParams(pathWithoutQuery, params) || NavigationActions.init();
-      this.setState({
-        nav: Navigator.router.getStateForAction(action)
-      });
+    componentWillUnmount() {
+      this.unlistener();
     }
 
-    dispatch = (action) => {
-      if (typeof action === 'function') {
-        if (this.props.getState) return action(this.dispatch, this.props.getState);
-        return action(this.dispatch, () => this.state.nav);
-      }
-      const oldState = this.state.nav;
-      const { basePath = '/' } = this.props;
-      const newState = this.reducer(this.history, oldState, action, basePath);
-
-      this.triggerAllSubscribers(
-        this.subscribers,
-        {
-          type: 'action',
-          action,
-          state: oldState,
-          lastState: newState,
-        },
+    handleNavigationStateChange = (...args) => {
+      const { basePath } = this.props;
+      const [prevState, nextState, action] = args;
+      const pathAndParams = Navigator.router.getPathAndParamsForState(
+        nextState
       );
-      this.setState({
-        nav: newState,
-      });
-      return newState;
-    }
+
+      if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
+      this.pathAndParams = pathAndParams;
+
+      if (action.ignoreHistory) return;
+      const diffRoute = nextState.routes.length - prevState.routes.length;
+      if (diffRoute > 0) {
+        this.history.push({
+          pathname: `${basePath}${pathAndParams.path}`,
+          search: paramsToString(pathAndParams.params),
+        });
+      } else if (diffRoute === 0) {
+        this.history.replace({
+          pathname: `${basePath}${pathAndParams.path}`,
+          search: paramsToString(pathAndParams.params),
+        });
+      } else if (diffRoute < 0) {
+        Array(Math.abs(diffRoute)).fill(0).forEach(() => this.history.goBack());
+      }
+      this.props.onNavigationStateChange &&
+        this.props.onNavigationStateChange(...args);
+    };
 
     render() {
-      this.currentNavProp = getNavigation(
-        Navigator.router,
-        this.state.nav,
-        this.dispatch,
-        this.subscribers,
-        () => {},
-        () => this.currentNavProp,
+      const {
+        navigatorRef,
+        onNavigationStateChange,
+        ...restProps
+      } = this.props;
+
+      return (
+        <Navigator
+          ref={ref => {
+            navigatorRef && navigatorRef(ref);
+            NavigationService.setTopLevelNavigator(ref);
+          }}
+          onNavigationStateChange={this.handleNavigationStateChange}
+          {...restProps}
+        />
       );
-      if (!this.state.nav) return null;
-      return (<Navigator navigation={this.currentNavProp} />);
     }
+  };
 
-    addListener = (eventName, handler) => {
-      if (eventName !== 'action') {
-        return { remove: () => {} };
-      }
-      this.subscribers.add(handler);
-      return {
-        remove: () => {
-          this.subscribers.delete(handler);
-        },
-      };
-    }
-
-    triggerAllSubscribers(subscribers, payload) {
-      subscribers.forEach(subscriber => subscriber(payload));
-    }
-  }
-  Wrapper.router = Navigator.router;
   return Wrapper;
 }
