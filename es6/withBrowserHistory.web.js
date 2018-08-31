@@ -61,7 +61,7 @@ export default function withBrowserHistory(Navigator) {
 
     handleNavigationStateChange = (...args) => {
       const { basePath } = this.props;
-      const [, nextState, action] = args;
+      const [prevState, nextState, action] = args;
       const pathAndParams = Navigator.router.getPathAndParamsForState(
         nextState
       );
@@ -70,39 +70,20 @@ export default function withBrowserHistory(Navigator) {
       this.pathAndParams = pathAndParams;
 
       if (action.ignoreHistory) return;
-
-      switch (action.type) {
-        case NAVIGATE:
-        case PUSH: {
-          this.history.push({
-            pathname: `${basePath}${pathAndParams.path}`,
-            search: paramsToString(pathAndParams.params),
-          });
-          break;
-        }
-
-        case SET_PARAMS: {
-          this.history.replace({
-            pathname: `${basePath}${pathAndParams.path}`,
-            search: paramsToString(pathAndParams.params),
-          });
-          break;
-        }
-
-        case BACK: {
-          this.history.goBack();
-          break;
-        }
-
-        case POP: {
-          this.history.go(`-${action.n}`);
-          break;
-        }
-
-        default:
-          console.warn(`${action.type} is not supported`);
+      const diffRoute = nextState.routes.length - prevState.routes.length;
+      if (diffRoute > 0) {
+        this.history.push({
+          pathname: `${basePath}${pathAndParams.path}`,
+          search: paramsToString(pathAndParams.params),
+        });
+      } else if (diffRoute === 0) {
+        this.history.replace({
+          pathname: `${basePath}${pathAndParams.path}`,
+          search: paramsToString(pathAndParams.params),
+        });
+      } else if (diffRoute < 0) {
+        Array(Math.abs(diffRoute)).fill(0).forEach(() => this.history.goBack());
       }
-
       this.props.onNavigationStateChange &&
         this.props.onNavigationStateChange(...args);
     };
