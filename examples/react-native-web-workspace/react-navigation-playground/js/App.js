@@ -126,7 +126,7 @@ const AppNavigator = StackNavigator(
     ...ExampleRoutes,
     Index: {
       screen: MainScreen,
-      path: '/',
+      path: '',
     },
   },
   {
@@ -142,11 +142,7 @@ const AppNavigator = StackNavigator(
 );
 
 const HistoryNavigator = withBrowserHistory(AppNavigator);
-
-const HOST = __DEV__ ? 'http://localhost:3000' : 'https://jekiwijaya.github.io';
-const BASE_PATH = __DEV__ ? '/' : '/react-navigation-browser-history-helpers/';
-
-export default () => <HistoryNavigator uriPrefix={HOST} basePath={BASE_PATH} />;
+export default () => <HistoryNavigator />;
 
 const styles = StyleSheet.create({
   item: {
