@@ -107,6 +107,6 @@ export default function withBrowserHistory(Navigator) {
       );
     }
   };
-
+  Wrapper.router = Navigator.router;
   return Wrapper;
 }
