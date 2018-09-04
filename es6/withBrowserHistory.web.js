@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { NavigationActions, StackActions } from 'react-navigation';
+import { NavigationActions } from 'react-navigation';
 import createHistory from 'history/createBrowserHistory';
 import NavigationService from './utils/NavigationService';
 import {
@@ -8,29 +8,36 @@ import {
   matchPathAndParams,
   paramsToString,
 } from './utils/queryString';
+import isMatch from 'lodash/isMatch';
+import mapValues from 'lodash/mapValues';
 
-const { NAVIGATE, BACK, SET_PARAMS } = NavigationActions;
-const { PUSH, POP } = StackActions;
+const { NAVIGATE } = NavigationActions;
 
 export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
+    lastState = null;
+
     static propTypes = {
       navigatorRef: PropTypes.func,
       basePath: PropTypes.string,
-      uriPrefix: PropTypes.string
+      uriPrefix: PropTypes.string,
     };
 
     static defaultProps = {
       navigatorRef: null,
       basePath: '/',
-      uriPrefix: ''
+      uriPrefix: '',
     };
 
     constructor(props) {
       super(props);
 
       this.history = createHistory();
-      this.pathAndParams = getPathAndParamsFromLocation(this.history.location, this.props.basePath, this.props.uriPrefix);
+      this.pathAndParams = getPathAndParamsFromLocation(
+        this.history.location,
+        this.props.basePath,
+        this.props.uriPrefix
+      );
 
       const action =
         Navigator.router.getActionForPathAndParams(
@@ -42,22 +49,51 @@ export default function withBrowserHistory(Navigator) {
 
     componentDidMount() {
       this.unlistener = this.history.listen(location => {
-        const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
+        const pathAndParams = getPathAndParamsFromLocation(
+          location,
+          this.props.basePath,
+          this.props.uriPrefix
+        );
 
         if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
         this.pathAndParams = pathAndParams;
-
         const action = Navigator.router.getActionForPathAndParams(
           pathAndParams.path,
           pathAndParams.params
         );
-        NavigationService.dispatch({ ...action, ignoreHistory: true });
+        const { routeName, params: newParams } = action;
+        const route =
+          this.getRouteFromRouteAndParams(
+            this.lastState,
+            routeName,
+            newParams
+          ) || {};
+
+        NavigationService.dispatch({
+          ...action,
+          ...route,
+          type: NAVIGATE,
+          ignoreHistory: true,
+        });
       });
     }
 
     componentWillUnmount() {
       this.unlistener();
     }
+
+    getRouteFromRouteAndParams = (state, routeName, params) => {
+      const route = state.routes.find(
+        route =>
+          route.routeName === routeName &&
+          isMatch(
+            mapValues(params, String),
+            mapValues(route.params || {}, String)
+          )
+      );
+
+      return route;
+    };
 
     handleNavigationStateChange = (...args) => {
       const { basePath } = this.props;
@@ -68,6 +104,7 @@ export default function withBrowserHistory(Navigator) {
 
       if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
       this.pathAndParams = pathAndParams;
+      this.lastState = nextState;
 
       if (action.ignoreHistory) return;
       const diffRoute = nextState.routes.length - prevState.routes.length;
@@ -82,7 +119,9 @@ export default function withBrowserHistory(Navigator) {
           search: paramsToString(pathAndParams.params),
         });
       } else if (diffRoute < 0) {
-        Array(Math.abs(diffRoute)).fill(0).forEach(() => this.history.goBack());
+        Array(Math.abs(diffRoute))
+          .fill(0)
+          .forEach(() => this.history.goBack());
       }
       this.props.onNavigationStateChange &&
         this.props.onNavigationStateChange(...args);
@@ -107,6 +146,8 @@ export default function withBrowserHistory(Navigator) {
       );
     }
   };
+
   Wrapper.router = Navigator.router;
+
   return Wrapper;
 }
