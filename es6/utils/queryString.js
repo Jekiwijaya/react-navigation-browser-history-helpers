@@ -9,7 +9,6 @@ export function getPathAndParamsFromLocation(location, basePath = '/', uriPrefix
 
 export function matchPathAndParams(current, next) {
   if (current.path !== next.path) return false;
-  if (qs.stringify(current.params) !== qs.stringify(next.params)) return false;
 
   return true;
 }
