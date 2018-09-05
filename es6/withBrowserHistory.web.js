@@ -34,11 +34,6 @@ export default function withBrowserHistory(Navigator) {
         this.props.basePath,
         this.props.uriPrefix
       );
-
-      const action =
-        Navigator.router.getActionForPathAndParams(this.pathAndParams.path, this.pathAndParams.params) ||
-        NavigationActions.init();
-      // NavigationService.dispatch(action);
     }
 
     componentDidMount() {
@@ -133,7 +128,7 @@ export default function withBrowserHistory(Navigator) {
           }}
           uriPrefix={`${this.props.uriPrefix}${this.props.basePath}`}
           onNavigationStateChange={this.handleNavigationStateChange}
-          persistenceKey="_browser_history_helper" // @FIXME: This is the only hack to make default navigation state, from Linking.getInitialUrl()
+          persistenceKey="_browser_history_helper" // @FIXME: This is the only hack to make default navigation state, from Linking.getInitialUrl() https://github.com/Jekiwijaya/react-navigation-browser-history-helpers/issues/9
         />
       );
     }
