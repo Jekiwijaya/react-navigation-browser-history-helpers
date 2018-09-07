@@ -7,7 +7,7 @@ import { getPathAndParamsFromLocation, matchPathAndParams } from './utils/queryS
 import mapValues from 'lodash/mapValues';
 
 const { NAVIGATE } = NavigationActions;
-const { PUSH } = StackActions;
+const { PUSH, REPLACE } = StackActions;
 
 export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
@@ -45,7 +45,7 @@ export default function withBrowserHistory(Navigator) {
         const { routeName, params: newParams } = action;
         const route = this.getRouteFromRouteAndParams(this.lastState, routeName, newParams);
 
-        if (route) {
+        if (route || this.lastState.routes.length == 1) {
           NavigationService.dispatch({
             ...action,
             ...route,
@@ -56,7 +56,7 @@ export default function withBrowserHistory(Navigator) {
           NavigationService.dispatch({
             ...action,
             ...route,
-            type: PUSH,
+            type: REPLACE,
             ignoreHistory: true,
           });
         }
@@ -98,7 +98,6 @@ export default function withBrowserHistory(Navigator) {
 
       if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
       this.pathAndParams = pathAndParams;
-
       if (action.ignoreHistory) return;
       const diffRoute = nextState.routes.length - prevState.routes.length;
       if (diffRoute > 0) {
@@ -110,9 +109,9 @@ export default function withBrowserHistory(Navigator) {
           pathname: `${basePath}${pathAndParams.path}`,
         });
       } else if (diffRoute < 0) {
-        Array(Math.abs(diffRoute))
-          .fill(0)
-          .forEach(() => this.history.goBack());
+        this.history.push({
+          pathname: `${basePath}${pathAndParams.path}`,
+        });
       }
       this.props.onNavigationStateChange && this.props.onNavigationStateChange(...args);
     };
@@ -128,7 +127,6 @@ export default function withBrowserHistory(Navigator) {
           }}
           uriPrefix={`${this.props.uriPrefix}${this.props.basePath}`}
           onNavigationStateChange={this.handleNavigationStateChange}
-          persistenceKey="_browser_history_helper" // @FIXME: This is the only hack to make default navigation state, from Linking.getInitialUrl() https://github.com/Jekiwijaya/react-navigation-browser-history-helpers/issues/9
         />
       );
     }
