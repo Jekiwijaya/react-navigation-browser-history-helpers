@@ -37,6 +37,21 @@ export default function withBrowserHistory(Navigator) {
     }
 
     componentDidMount() {
+      // Read QS
+      const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
+      this.pathAndParams = pathAndParams;
+
+      const action = Navigator.router.getActionForPathAndParams(pathAndParams.path, pathAndParams.params);
+      const { routeName, params: newParams } = action;
+      const route = this.getRouteFromRouteAndParams(this.lastState, routeName, newParams);
+
+      NavigationService.dispatch({
+        ...action,
+        ...route,
+        type: REPLACE,
+        ignoreHistory: true,
+      });
+      // Read QS
       this.unlistener = this.history.listen(location => {
         const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
         if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
