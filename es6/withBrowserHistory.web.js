@@ -8,15 +8,9 @@ import {
   matchPathAndParams,
   paramsToString,
 } from './utils/queryString';
-import isMatch from 'lodash/isMatch';
-import mapValues from 'lodash/mapValues';
-
-const { NAVIGATE } = NavigationActions;
 
 export default function withBrowserHistory(Navigator) {
   const Wrapper = class extends Component {
-    lastState = null;
-
     static propTypes = {
       navigatorRef: PropTypes.func,
       basePath: PropTypes.string,
@@ -57,24 +51,12 @@ export default function withBrowserHistory(Navigator) {
 
         if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
         this.pathAndParams = pathAndParams;
+
         const action = Navigator.router.getActionForPathAndParams(
           pathAndParams.path,
           pathAndParams.params
         );
-        const { routeName, params: newParams } = action;
-        const route =
-          this.getRouteFromRouteAndParams(
-            this.lastState,
-            routeName,
-            newParams
-          ) || {};
-
-        NavigationService.dispatch({
-          ...action,
-          ...route,
-          type: NAVIGATE,
-          ignoreHistory: true,
-        });
+        NavigationService.dispatch({ ...action, ignoreHistory: true });
       });
     }
 
@@ -82,15 +64,16 @@ export default function withBrowserHistory(Navigator) {
       this.unlistener();
     }
 
-    getRouteFromRouteAndParams = (state, routeName, params) => {
-      const route = state.routes.find(
-        route =>
-          route.routeName === routeName &&
-          isMatch(
-            mapValues(params, String),
-            mapValues(route.params || {}, String)
-          )
-      );
+    getRoute = route => {
+      const nestedRoute = route.routes[route.index];
+
+      if (nestedRoute && nestedRoute.routes) {
+        if (nestedRoute.routes[nestedRoute.index].routes) {
+          return this.getRoute(nestedRoute);
+        }
+
+        return nestedRoute;
+      }
 
       return route;
     };
@@ -104,10 +87,13 @@ export default function withBrowserHistory(Navigator) {
 
       if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
       this.pathAndParams = pathAndParams;
-      this.lastState = nextState;
 
       if (action.ignoreHistory) return;
-      const diffRoute = nextState.routes.length - prevState.routes.length;
+
+      const prevRoute = this.getRoute(prevState);
+      const nextRoute = this.getRoute(nextState);
+      const diffRoute = nextRoute.routes.length - prevRoute.routes.length;
+
       if (diffRoute > 0) {
         this.history.push({
           pathname: `${basePath}${pathAndParams.path}`,
@@ -146,8 +132,6 @@ export default function withBrowserHistory(Navigator) {
       );
     }
   };
-
   Wrapper.router = Navigator.router;
-
   return Wrapper;
 }
