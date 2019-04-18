@@ -28,8 +28,10 @@ export default function withBrowserHistory(Navigator) {
 
     constructor(props) {
       super(props);
-
       this.history = createHistory();
+    }
+
+    componentDidMount() {
       this.pathAndParams = getPathAndParamsFromLocation(this.history.location, this.props.basePath, this.props.uriPrefix);
 
       const action =
@@ -38,9 +40,7 @@ export default function withBrowserHistory(Navigator) {
           this.pathAndParams.params
         ) || NavigationActions.init();
       NavigationService.dispatch(action);
-    }
 
-    componentDidMount() {
       this.unlistener = this.history.listen(location => {
         const pathAndParams = getPathAndParamsFromLocation(location, this.props.basePath, this.props.uriPrefix);
 
@@ -65,7 +65,6 @@ export default function withBrowserHistory(Navigator) {
       const pathAndParams = Navigator.router.getPathAndParamsForState(
         nextState
       );
-
       if (matchPathAndParams(this.pathAndParams, pathAndParams)) return;
       this.pathAndParams = pathAndParams;
 
@@ -74,12 +73,12 @@ export default function withBrowserHistory(Navigator) {
       if (diffRoute > 0) {
         this.history.push({
           pathname: `${basePath}${pathAndParams.path}`,
-          search: paramsToString(pathAndParams.params),
+          // search: paramsToString(pathAndParams.params),
         });
       } else if (diffRoute === 0) {
         this.history.replace({
           pathname: `${basePath}${pathAndParams.path}`,
-          search: paramsToString(pathAndParams.params),
+          // search: paramsToString(pathAndParams.params),
         });
       } else if (diffRoute < 0) {
         Array(Math.abs(diffRoute)).fill(0).forEach(() => this.history.goBack());
